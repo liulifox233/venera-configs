@@ -1,7 +1,7 @@
 class ShonenJumpPlus extends ComicSource {
   name = "少年ジャンプ＋";
   key = "shonen_jump_plus";
-  version = "1.1.0";
+  version = "1.1.1";
   minAppVersion = "1.2.1";
   url =
     "https://git.nyne.dev/nyne/venera-configs/raw/branch/main/shonen_jump_plus.js";
@@ -32,11 +32,18 @@ class ShonenJumpPlus extends ComicSource {
   }
 
   async init() {
-    const url = "https://apps.apple.com/jp/app/少年ジャンプ-人気漫画が読める雑誌アプリ/id875750302";
+    const appId = "875750302";
+    const url = `https://itunes.apple.com/lookup?id=${appId}&country=jp`;
+
     const resp = await Network.get(url);
-    const match = resp.body.match(/":\[\{\\"versionDisplay\\":\\"([\d.]+)\\",\\"rele/);
-    if (match) {
-      this.latestVersion = match[1];
+    
+    try {
+      const data = JSON.parse(resp.body);
+      if (data.results && data.results.length > 0) {
+        this.latestVersion = data.results[0].version;
+      }
+    } catch (err) {
+      console.error("resolve app version failed:", err);
     }
   }
 
